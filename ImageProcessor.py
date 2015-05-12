@@ -2,7 +2,7 @@
 
 # %load ImageProcessor.py
 # %load ImageProcessor.py
-#%save ImageProcessor.py 67
+#%save ImageProcessor.py 12
 
 from scipy import ndimage
 from deuces.card import Card
@@ -20,7 +20,7 @@ import time
 get_ipython().magic(u'matplotlib inline')
 
 class Frame(): 
-    def __init__(self, blinds = .10):
+    def __init__(self, blinds = .05):
         '''Locate the Bovada window and initialize variables '''
     
         ## initialize the bovada logo reference image
@@ -44,13 +44,13 @@ class Frame():
                 'blinds' : ((0, 35), (150, 50)),
                 'textBar': ((670, 590),(750, 605)),
                 'fold'   : ((420, 560), (520, 580)),
-                'check'   : ((540, 560), (600, 580)),
                 'stack0' : ((380, 470), (480, 495)),
                 'stack1' : ((70, 395), (170, 420)),
                 'stack2' : ((70, 180), (170, 205)),
                 'stack3' : ((330, 105), (430, 130)),
                 'stack4' : ((630, 180), (730, 205)),
                 'stack5' : ((630, 395), (730, 420)),
+                'bet0'   : ((390, 410),(490, 425)),
                 'bet1'   : ((190, 355), (300, 370)),
                 'bet2'   : ((190, 230), (300, 245)),
                 'bet3'   : ((400, 172), (500, 185)),
@@ -60,7 +60,7 @@ class Frame():
         
         
         
-        ## Coordinates of where button can exist
+        ## Coordinates of where dealer button can exist
         self.DEALER_LOC = [(264, 422),(137,302),(220, 165),(530, 150),(660, 275),(570, 408)]
         
         ## save a screen shot   
@@ -78,8 +78,7 @@ class Frame():
         self.frame = img[self.y:self.y + 650, self.x:self.x + 750]  
         
         
-        ## load the suit reference functions
-        ##used to identify card suits
+        ## load the suit reference functions used to identify card suits
         self.SUIT_REF_FUNCTIONS = []
         heart = misc.imread("reference_images/suits/HEART.jpg", flatten = True)
         diamond = misc.imread("reference_images/suits/DIAMOND.jpg", flatten = True)
@@ -115,8 +114,7 @@ class Frame():
         blank = np.ones((num_img.shape[0] * 2, num_img.shape[1] * 7))*245
         for i in range(0, 20*6, 20):
             blank[:num_img.shape[0], i :num_img.shape[1] + i] = num_img
-        
-        
+               
         num_img = PIL.Image.fromarray(np.uint8(blank))
         num_str =  image_to_string(num_img)
         
@@ -186,17 +184,10 @@ class Frame():
         time.sleep(.2)
         gui.mouseUp()
         
-    
-    def call(self):   
-        v = self.LOCATIONS['check']    
-        gui.moveTo(v[0][0] + self.x + 50, v[0][1] + self.y + 10, duration = .3) 
-        time.sleep(.3)
-        gui.mouseDown()
-        time.sleep(.2)
-        gui.mouseUp()
+
 
     def user_position(self):
-        positions = ['BTN', 'SB', 'BB','UTG', 'MP', 'CO']
+        positions = ['D', 'SB', 'BB','UTG', 'MP', 'CO']
         color = lambda x : self.frame[x[1], x[0]]
         button = self.DEALER_LOC.index(max(self.DEALER_LOC, key = color))
         return positions[(6 - button) % 6]
@@ -228,7 +219,8 @@ class Frame():
         return len(slice[slice > 50]) > 50
     
     
-  
+    def is_unopened(self):
+        return len(a[a == .5]) == 1
     
     
     
