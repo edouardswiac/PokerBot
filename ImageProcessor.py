@@ -24,7 +24,7 @@ class Frame():
         '''Locate the Bovada window and initialize variables '''
     
         ## initialize the bovada logo reference image
-        ## Everytime the frame updates, it must locate the Bovada logo as a reference point
+        ## Everytime the bovada frame moves, we must relocate the Bovada logo as a reference point
         self.BOVADA_REF_IMG = PIL.Image.open("reference_images/BOVADA.png")
         
         self.blinds = blinds
