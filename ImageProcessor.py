@@ -44,6 +44,7 @@ class Frame():
                 'blinds' : ((0, 35), (150, 50)),
                 'textBar': ((670, 590),(750, 605)),
                 'fold'   : ((420, 560), (520, 580)),
+                'call'   : ((530, 560), (630, 580)),
                 'stack0' : ((380, 470), (480, 495)),
                 'stack1' : ((70, 395), (170, 420)),
                 'stack2' : ((70, 180), (170, 205)),
@@ -174,7 +175,7 @@ class Frame():
     
     def fold(self):
         if self.user_position() is 'BB' and self.bets().max() == self.blinds:
-            v = self.LOCATIONS['check']      
+            v = self.LOCATIONS['call']      
         else:  
             v = self.LOCATIONS['fold']
             
@@ -184,10 +185,19 @@ class Frame():
         time.sleep(.2)
         gui.mouseUp()
         
+    def call(self):
+        v = self.LOCATIONS['call']
+        gui.moveTo(v[0][0] + self.x + 50, v[0][1] + self.y + 10, duration = .3) 
+        time.sleep(.3)
+        gui.mouseDown()
+        time.sleep(.2)
+        gui.mouseUp()
+        
+        
 
 
     def user_position(self):
-        positions = ['D', 'SB', 'BB','UTG', 'MP', 'CO']
+        positions = ['BTN', 'SB', 'BB','UTG', 'MP', 'CO']
         color = lambda x : self.frame[x[1], x[0]]
         button = self.DEALER_LOC.index(max(self.DEALER_LOC, key = color))
         return positions[(6 - button) % 6]
@@ -209,6 +219,7 @@ class Frame():
             except ValueError:
                 bets[i - 1] = 0
         return bets
+   
             
     
     def is_user_turn(self):
@@ -218,9 +229,7 @@ class Frame():
         #bins = plt.hist(slice)
         return len(slice[slice > 50]) > 50
     
-    
-    def is_unopened(self):
-        return len(a[a == .5]) == 1
+   
     
     
     
