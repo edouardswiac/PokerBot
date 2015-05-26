@@ -45,6 +45,7 @@ class Frame():
                 'textBar': ((670, 590),(750, 605)),
                 'fold'   : ((420, 560), (520, 580)),
                 'call'   : ((530, 560), (630, 580)),
+                'check'   : ((530, 560), (630, 580)),
                 'stack0' : ((380, 470), (480, 495)),
                 'stack1' : ((70, 395), (170, 420)),
                 'stack2' : ((70, 180), (170, 205)),
@@ -166,19 +167,25 @@ class Frame():
             non_decimal = re.compile(r'[^\d.]+')
             s = non_decimal.sub('', s)
         
-        if s is '':
+        try:
+            return float(s)
+        except ValueError:
             return None
-        else:
-            return s
                  
     def bet(self, n):
-        v = self.LOCATIONS['textBar']
-        gui.moveTo(np.random.randint(v[0][0] + self.x, v[1][0] + self.x),
-                   np.random.randint(v[0][1] + self.y, v[1][1] + self.y), 
-                   duration = .5)
-        gui.click()
-        gui.typewrite(str(n), interval=0.25)
-        gui.press('enter')
+        if self.read_value('stack0') > n:
+            v = self.LOCATIONS['textBar']
+            gui.moveTo(np.random.randint(v[0][0] + self.x, v[1][0] + self.x),
+                       np.random.randint(v[0][1] + self.y, v[1][1] + self.y), 
+                       duration = .5)
+            gui.click()
+            gui.typewrite(str(n), interval=0.25)
+            gui.press('enter')
+        else:
+            v = self.LOCATIONS['textBar']
+            gui.moveTo(v[0][0] + self.x + 10, v[1][1] + self.y + 10)
+            gui.click()
+        
     
     def fold(self):
         if self.user_position() is 'BB' and self.bets().max() == self.blinds:
@@ -220,21 +227,24 @@ class Frame():
     def bets(self):
         bets = np.zeros(5)
         for i in range(1, 6):
-            bet = self.read_value('bet%s'%i)      
-            try:
-                bets[i - 1] = bet
-            except ValueError:
-                bets[i - 1] = 0
+            bet = self.read_value('bet%s'%i)
+            if bet is None:
+                bet = 0.0
+            bets[i - 1] = bet
+            
         return bets
    
             
     
     def is_user_turn(self):
-        pos = self.LOCATIONS['stack0']
-        slice = self.frame[pos[0][1] + 30:pos[1][1]+20, pos[0][0]:pos[1][0]]
-        #plt.imshow(slice)
-        #bins = plt.hist(slice)
-        return len(slice[slice > 50]) > 50
+        img = misc.imread('screenshots/test.jpg', flatten = False)
+        img = img[self.y:self.y + 650, self.x:self.x + 750]  
+        
+        slice = img[500:515, 330:450]
+        slice = slice.reshape(slice.shape[0]*slice.shape[1], 4)
+        yellow_mask = (slice[:,0] > 200) & (slice[:,1] > 200) & (slice[:,2] == 0)
+        
+        return len(slice[yellow_mask]) > 0
     
    
     
